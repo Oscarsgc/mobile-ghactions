@@ -1,0 +1,6 @@
+[....] Waiting up to 5 seconds for iOS device to be connected
+[....] Found 00008030-000D788A11F3802E (N104AP, iPhone 11, iphoneos, arm64e, 15.2.1, 19C63) a.k.a. 'iPhone 11 "My device"' connected through USB.
+[....] Found 558c62e327b586714b7cff7a8e622e6dcf835778 (J128AP, iPad Pro (9.7"), iphoneos, arm64, 15.3.1, 19D52) a.k.a. 'Dan’s iPad' connected through USB.
+[....] Found 00008020-000E51983661002E (J217AP, iPad Air 3, iphoneos, arm64e, 15.2.1, 19C63) a.k.a. 'Melissa’s iPad' connected through USB.
+[....] Found 00008020-000E51983661002E (J217AP, iPad Air 3 9.7", iphoneos, arm64e, 15.2.1, 19C63) a.k.a. 'Melissa’s iPad' connected through USB.
+[....] Found 8406d6125fc71e9966314ae2a14bcbf78b47b968 (D20AP, iPhone 8, iphoneos, arm64, 15.4.1, 19E258) a.k.a. 'iPhone 8' connected through USB.
