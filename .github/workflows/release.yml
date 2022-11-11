@@ -1,0 +1,70 @@
+name: Android adhoc
+on:
+  push:
+    branches: [ main ]
+
+env:
+  JAVA_VERSION: '11'
+  WORKING_DIR: './App'
+
+jobs:
+  build:
+    name: Build APK
+    runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: ${{ env.WORKING_DIR }}
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Setup Node
+      uses: actions/setup-node@v3
+      with:
+        node-version: 16.x
+
+    - name: Setup Java SDK ${{ env.JAVA_VERSION }}
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'zulu'
+        java-version: ${{ env.JAVA_VERSION }}
+    
+    - name: Install app dependencies
+      run: npm install
+    
+    - name: Build App
+      run: npm run build
+
+    - name: Capacitor update
+      run: npx cap update
+
+    - name: Capacitor copy
+      run: npx cap copy
+    
+    - name: Build app APK
+      run: cd android && gradle assemble
+    
+    # - name: Build Android APK
+    #   run: |
+    #     cd ./App
+    #     npm install
+    #     ionic capacitor add android
+    #     ionic capacitor build android --minifycss --optimizejs --minifyjs --no-open --release
+    #     npx ionic capacitor copy android && npx cap sync android
+
+    # - name: Build release
+    #   run: |
+    #     cd ./App/android
+    #     ./gradlew assembleRelease
+
+    - name: Upload IPA to TestApp.io
+      uses: testappio/github-action@v5
+      with:
+        api_token: ${{secrets.TESTAPPIO_API_TOKEN}}
+        app_id: ${{secrets.TESTAPPIO_APP_ID}}
+        file: app/build/outputs/apk/release/app-release-unsigned.apk
+        release_notes: "Testing manual release notes..."
+        git_release_notes: false
+        include_git_commit_id: false
+        notify: true
