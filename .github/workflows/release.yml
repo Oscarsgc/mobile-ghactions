@@ -48,6 +48,15 @@ jobs:
     - name: Build app APK
       run: cd android && gradle assemble
     
+    - name: Extract Android signing key from env
+      run: |
+        echo "${{ secrets.RELEASE_KEYSTORE }}" > ./android/release.jks.base64
+        base64 -d ./android/release.jks.base64 > ./android/release.decrypted.jks
+    
+    - name: Sign dev build
+      run: jarsigner -keystore ./android/release.decrypted.jks -storepass "${{ secrets.RELEASE_KEYSTORE_PASSWORD }}" -signedjar ./android/app/build/outputs/apk/release/app-release-signed.apk ./android/app/build/outputs/apk/release/app-release-unsigned.apk release
+
+    
     # - name: Build Android APK
     #   run: |
     #     cd ./App
@@ -66,7 +75,7 @@ jobs:
       with:
         api_token: ${{secrets.TESTAPPIO_API_TOKEN}}
         app_id: ${{secrets.TESTAPPIO_APP_ID}}
-        file: App/android/app/build/outputs/apk/release/app-release-unsigned.apk
+        file: App/android/app/build/outputs/apk/release/app-release-signed.apk
         release_notes: "Testing manual release notes..."
         git_release_notes: false
         include_git_commit_id: false
