@@ -35,6 +35,10 @@ jobs:
     
     - name: Build App
       run: npm run build
+    
+    - name: Clean release
+      run: |
+        ionic capacitor add android
 
     - name: Capacitor update
       run: npx cap update
