@@ -8,8 +8,67 @@ env:
   WORKING_DIR: './App'
 
 jobs:
-  build:
-    name: Build APK
+  # android:
+  #   name: Build and Release APK
+  #   runs-on: macos-latest
+  #   defaults:
+  #     run:
+  #       working-directory: ${{ env.WORKING_DIR }}
+
+  #   steps:
+  #   - name: Checkout repository
+  #     uses: actions/checkout@v3
+
+  #   - name: Setup Node
+  #     uses: actions/setup-node@v3
+  #     with:
+  #       node-version: 16.x
+
+  #   - name: Setup Java SDK ${{ env.JAVA_VERSION }}
+  #     uses: actions/setup-java@v3
+  #     with:
+  #       distribution: 'zulu'
+  #       java-version: ${{ env.JAVA_VERSION }}
+    
+  #   - name: Install Ionic
+  #     run: npm install -g @ionic/cli
+    
+  #   - name: Install app dependencies
+  #     run: npm install
+    
+  #   - name: Build App
+  #     run: npm run build
+    
+  #   - name: Capacitor copy
+  #     run: npx cap copy && npx cap sync
+    
+  #   - name: Build Android
+  #     run: ionic capacitor build android --minifycss --optimizejs --minifyjs --no-open --release --prod
+    
+  #   - name: Build app APK
+  #     run: cd android && gradle assemble
+    
+  #   - name: Extract Android signing key from env
+  #     run: |
+  #       echo "${{ secrets.RELEASE_KEYSTORE }}" > ./android/release.jks.base64
+  #       base64 -d ./android/release.jks.base64 > ./android/release.decrypted.jks
+    
+  #   - name: Sign dev build
+  #     run: jarsigner -keystore ./android/release.decrypted.jks -storepass "${{ secrets.RELEASE_KEYSTORE_PASSWORD }}" -signedjar ./android/app/build/outputs/apk/release/app-release-signed.apk ./android/app/build/outputs/apk/release/app-release-unsigned.apk release
+
+  #   - name: Upload APK to TestApp.io
+  #     uses: testappio/github-action@v5
+  #     with:
+  #       api_token: ${{secrets.TESTAPPIO_API_TOKEN}}
+  #       app_id: ${{secrets.TESTAPPIO_APP_ID}}
+  #       file: App/android/app/build/outputs/apk/release/app-release-signed.apk
+  #       release_notes: "Testing manual release notes..."
+  #       git_release_notes: false
+  #       include_git_commit_id: false
+  #       notify: true
+  
+  ios:
+    name: Build and Release IPA
     runs-on: macos-latest
     defaults:
       run:
@@ -24,12 +83,6 @@ jobs:
       with:
         node-version: 16.x
 
-    - name: Setup Java SDK ${{ env.JAVA_VERSION }}
-      uses: actions/setup-java@v3
-      with:
-        distribution: 'zulu'
-        java-version: ${{ env.JAVA_VERSION }}
-    
     - name: Install Ionic
       run: npm install -g @ionic/cli
     
@@ -40,42 +93,29 @@ jobs:
       run: npm run build
     
     - name: Capacitor copy
-      run: npx cap copy && npx cap sync
+      run: ionic capacitor copy ios && ionic capacitor update
     
-    - name: Build Android
-      run: ionic capacitor build android --minifycss --optimizejs --minifyjs --no-open --release --prod
+    - name: Build iOS
+      run: ionic capacitor build ios --minifycss --optimizejs --minifyjs --no-open --release --prod
     
-    - name: Build app APK
-      run: cd android && gradle assemble
+    - name: Build with xCode
+      # run: xcodebuild -workspace ios/App/App.xcworkspace -scheme App clean archive -configuration release -sdk iphoneos -allowProvisioningUpdates DEVELOPMENT_TEAM=97C4K3R6W5 -archivePath ios/App/App.xcarchive
+      run: xcodebuild -workspace ios/App/App.xcworkspace -scheme App clean archive -configuration release -sdk iphoneos -allowProvisioningUpdates DEVELOPMENT_TEAM=${{secrets.APPLE_DEV_TEAM}} -archivePath ios/App/App.xcarchive
     
-    - name: Extract Android signing key from env
+    - name: Generate IPA file
       run: |
-        echo "${{ secrets.RELEASE_KEYSTORE }}" > ./android/release.jks.base64
-        base64 -d ./android/release.jks.base64 > ./android/release.decrypted.jks
-    
-    - name: Sign dev build
-      run: jarsigner -keystore ./android/release.decrypted.jks -storepass "${{ secrets.RELEASE_KEYSTORE_PASSWORD }}" -signedjar ./android/app/build/outputs/apk/release/app-release-signed.apk ./android/app/build/outputs/apk/release/app-release-unsigned.apk release
+        cd ios/App/App.xcarchive/Products/Applications
+        mkdir Payload
+        cp -R App.app Payload
+        zip -qyr App.ipa ./Payload
+        rm -rf Payload
 
-    
-    # - name: Build Android APK
-    #   run: |
-    #     cd ./App
-    #     npm install
-    #     ionic capacitor add android
-    #     ionic capacitor build android --minifycss --optimizejs --minifyjs --no-open --release
-    #     npx ionic capacitor copy android && npx cap sync android
-
-    # - name: Build release
-    #   run: |
-    #     cd ./App/android
-    #     ./gradlew assembleRelease
-
-    - name: Upload APK to TestApp.io
+    - name: Upload IPA to TestApp.io
       uses: testappio/github-action@v5
       with:
         api_token: ${{secrets.TESTAPPIO_API_TOKEN}}
         app_id: ${{secrets.TESTAPPIO_APP_ID}}
-        file: App/android/app/build/outputs/apk/release/app-release-signed.apk
+        file: App/ios/App/App.xcarchive/Products/Applications/App.ipa
         release_notes: "Testing manual release notes..."
         git_release_notes: false
         include_git_commit_id: false
