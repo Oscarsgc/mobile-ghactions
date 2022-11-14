@@ -110,14 +110,18 @@ jobs:
         mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
         cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
 
-        echo $AUTH_KEY_PATH
+        echo "KEY_PATH=$AUTH_KEY_PATH" >> $GITHUB_ENV
+        
 
+    - name: print path
+      run: echo ${{ env.KEY_PATH }}
+      
     # - name: Setup Node
     #   uses: actions/setup-node@v3
     #   with:
     #     node-version: 16.x
 
-    # - name: Install Ionic
+
     #   run: npm install -g @ionic/cli
     
     # - name: Install app dependencies
