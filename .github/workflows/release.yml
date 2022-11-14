@@ -116,9 +116,6 @@ jobs:
       uses: actions/setup-node@v3
       with:
         node-version: 16.x
-
-
-      run: npm install -g @ionic/cli
     
     - name: Install app dependencies
       run: npm install
