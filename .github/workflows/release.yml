@@ -107,6 +107,12 @@ jobs:
         mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
         cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
 
+    - name: Setup xCode
+      uses: sinoru/actions-setup-xcode@v2
+      with:
+        apple-id: ${{ secrets.APPLE_ID }} # Apple ID to download from Apple Developer when Xcode not available in local
+        apple-id-password: ${{ secrets.APPLE_ID_PASSWORD }}
+        
     - name: Setup Node
       uses: actions/setup-node@v3
       with:
