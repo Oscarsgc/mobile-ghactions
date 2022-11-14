@@ -110,45 +110,47 @@ jobs:
         mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
         cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
 
-    - name: Setup Node
-      uses: actions/setup-node@v3
-      with:
-        node-version: 16.x
+        echo $AUTH_KEY_PATH
 
-    - name: Install Ionic
-      run: npm install -g @ionic/cli
-    
-    - name: Install app dependencies
-      run: npm install
-    
-    - name: Build App
-      run: npm run build
-    
-    - name: Capacitor copy
-      run: ionic capacitor copy ios && ionic capacitor update ios
-    
-    - name: Build iOS
-      run: ionic capacitor build ios --minifycss --optimizejs --minifyjs --no-open --release --prod
-    
-    - name: Build with xCode
-      # run: xcodebuild -workspace ios/App/App.xcworkspace -scheme App clean archive -configuration release -sdk iphoneos -allowProvisioningUpdates DEVELOPMENT_TEAM=97C4K3R6W5 -archivePath ios/App/App.xcarchive
-      run: xcodebuild -workspace ios/App/App.xcworkspace -scheme App clean archive -configuration release -sdk iphoneos -allowProvisioningUpdates -authenticationKeyIssuerID ${{secrets.AUTH_KEY_ISSUER_ID}} -authenticationKeyID ${{secrets.KEY_ID}} -authenticationKeyPath $AUTH_KEY_PATH DEVELOPMENT_TEAM=${{secrets.APPLE_DEV_TEAM}} -archivePath ios/App/App.xcarchive
-    
-    - name: Generate IPA file
-      run: |
-        cd ios/App/App.xcarchive/Products/Applications
-        mkdir Payload
-        cp -R App.app Payload
-        zip -qyr App.ipa ./Payload
-        rm -rf Payload
+    # - name: Setup Node
+    #   uses: actions/setup-node@v3
+    #   with:
+    #     node-version: 16.x
 
-    - name: Upload IPA to TestApp.io
-      uses: testappio/github-action@v5
-      with:
-        api_token: ${{secrets.TESTAPPIO_API_TOKEN}}
-        app_id: ${{secrets.TESTAPPIO_APP_ID}}
-        file: App/ios/App/App.xcarchive/Products/Applications/App.ipa
-        release_notes: "Testing manual release notes..."
-        git_release_notes: false
-        include_git_commit_id: false
-        notify: true
+    # - name: Install Ionic
+    #   run: npm install -g @ionic/cli
+    
+    # - name: Install app dependencies
+    #   run: npm install
+    
+    # - name: Build App
+    #   run: npm run build
+    
+    # - name: Capacitor copy
+    #   run: ionic capacitor copy ios && ionic capacitor update ios
+    
+    # - name: Build iOS
+    #   run: ionic capacitor build ios --minifycss --optimizejs --minifyjs --no-open --release --prod
+    
+    # - name: Build with xCode
+    #   # run: xcodebuild -workspace ios/App/App.xcworkspace -scheme App clean archive -configuration release -sdk iphoneos -allowProvisioningUpdates DEVELOPMENT_TEAM=97C4K3R6W5 -archivePath ios/App/App.xcarchive
+    #   run: xcodebuild -workspace ios/App/App.xcworkspace -scheme App clean archive -configuration release -sdk iphoneos -allowProvisioningUpdates -authenticationKeyIssuerID ${{secrets.AUTH_KEY_ISSUER_ID}} -authenticationKeyID ${{secrets.KEY_ID}} -authenticationKeyPath $AUTH_KEY_PATH DEVELOPMENT_TEAM=${{secrets.APPLE_DEV_TEAM}} -archivePath ios/App/App.xcarchive
+    
+    # - name: Generate IPA file
+    #   run: |
+    #     cd ios/App/App.xcarchive/Products/Applications
+    #     mkdir Payload
+    #     cp -R App.app Payload
+    #     zip -qyr App.ipa ./Payload
+    #     rm -rf Payload
+
+    # - name: Upload IPA to TestApp.io
+    #   uses: testappio/github-action@v5
+    #   with:
+    #     api_token: ${{secrets.TESTAPPIO_API_TOKEN}}
+    #     app_id: ${{secrets.TESTAPPIO_APP_ID}}
+    #     file: App/ios/App/App.xcarchive/Products/Applications/App.ipa
+    #     release_notes: "Testing manual release notes..."
+    #     git_release_notes: false
+    #     include_git_commit_id: false
+    #     notify: true
