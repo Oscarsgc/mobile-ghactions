@@ -1,4 +1,4 @@
-name: Android adhoc
+name: Test Release
 on:
   push:
     branches: [ main ]
@@ -93,7 +93,7 @@ jobs:
       run: npm run build
     
     - name: Capacitor copy
-      run: ionic capacitor copy ios && ionic capacitor update
+      run: ionic capacitor copy ios && ionic capacitor update ios
     
     - name: Build iOS
       run: ionic capacitor build ios --minifycss --optimizejs --minifyjs --no-open --release --prod
