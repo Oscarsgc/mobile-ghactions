@@ -137,7 +137,7 @@ jobs:
     #   run: ionic capacitor build ios --minifycss --optimizejs --minifyjs --no-open --release --prod
     
     - name: Build with xCode
-      run: xcodebuild -workspace ios/App/App.xcworkspace -scheme App clean archive -configuration Release -sdk iphoneos DEVELOPMENT_TEAM=%{{secrets.APPLE_DEV_TEAM}} -archivePath ios/App/App.xcarchive -authenticationKeyIssuerID ${{secrets.AUTH_KEY_ISSUER_ID}} -authenticationKeyID ${{secrets.KEY_ID}} -authenticationKeyPath ${{ env.KEY_PATH }} -allowProvisioningUpdates
+      run: xcodebuild -workspace ios/App/App.xcworkspace -scheme App clean archive -configuration Release -sdk iphoneos DEVELOPMENT_TEAM=${{secrets.APPLE_DEV_TEAM}} -archivePath ios/App/App.xcarchive -authenticationKeyIssuerID ${{secrets.AUTH_KEY_ISSUER_ID}} -authenticationKeyID ${{secrets.KEY_ID}} -authenticationKeyPath ${{ env.KEY_PATH }} -allowProvisioningUpdates
       # run: xcodebuild -workspace ios/App/App.xcworkspace -scheme App clean archive -configuration release -sdk iphoneos -allowProvisioningUpdates DEVELOPMENT_TEAM=97C4K3R6W5 -archivePath ios/App/App.xcarchive
       # run: xcodebuild -workspace ios/App/App.xcworkspace -scheme App clean archive -configuration release -sdk iphoneos -allowProvisioningUpdates -authenticationKeyIssuerID ${{secrets.AUTH_KEY_ISSUER_ID}} -authenticationKeyID ${{secrets.KEY_ID}} -authenticationKeyPath ${{ env.KEY_PATH }} -archivePath ios/App/App.xcarchive
     
