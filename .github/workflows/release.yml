@@ -6,6 +6,7 @@ on:
 env:
   JAVA_VERSION: '11'
   WORKING_DIR: './App'
+  android_version_code: 0
 
 jobs:
   android:
@@ -19,6 +20,26 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
+    - name: Download Version artifact
+      uses: dawidd6/action-download-artifact@v2
+      with:
+        github_token: ${{secrets.GITHUB_TOKEN}}
+        workflow: release.yml
+        name: android-integration-released-version
+        search_artifacts: true
+        workflow_conclusion: success
+        if_no_artifact_found: ignore
+    
+    - name: Check file existence
+      id: check_files
+      uses: andstor/file-existence-action@v2
+      with:
+        files: "AndroidVersionCode.txt"
+
+    - name: File exists
+      if: steps.check_files.outputs.files_exists == 'true'
+      run: echo "android_version_code=$(cat ./AndroidVersionCode.txt | cut -d "-" -f2-)" >> $GITHUB_ENV        
+
     - name: Setup Node
       uses: actions/setup-node@v3
       with:
@@ -30,6 +51,24 @@ jobs:
         distribution: 'zulu'
         java-version: ${{ env.JAVA_VERSION }}
     
+    - name: Update Version Code value
+      id: updated_version
+      uses: actions/github-script@v6
+      with:
+        script: |
+          return parseInt("${{ env.android_version_code }}") + 1
+    
+    - name: Get result
+      run: echo "${{steps.updated_version.outputs.result}}"
+
+    - name: Update gradle version for Android
+      uses: damienaicheh/update-android-version-gradle-action@v1.0.0
+      with:
+        build-gradle-path: 'app/android/build.gradle'
+        version-code: "${{steps.updated_version.outputs.result}}"
+        version-name: '2.0'
+        print-file: true
+
     - name: Install Ionic
       run: npm install -g @ionic/cli
     
