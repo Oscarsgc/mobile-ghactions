@@ -26,6 +26,7 @@ jobs:
           github_token: ${{secrets.GITHUB_TOKEN}}
           workflow: release.yml
           name: android-integration-released-version
+          path: ./App/
           search_artifacts: true
           workflow_conclusion: success
           if_no_artifact_found: ignore
