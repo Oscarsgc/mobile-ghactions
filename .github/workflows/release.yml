@@ -105,6 +105,16 @@ jobs:
         git_release_notes: false
         include_git_commit_id: false
         notify: true
+    
+    - name: Print deployed Release Version
+      run: |
+        echo "Build-${{steps.updated_version.outputs.result}}" > ./AndroidVersionCode.txt
+    
+    - name: Archive Android Code Version
+      uses: actions/upload-artifact@v3
+      with:
+        name: android-integration-released-version
+        path: ./AndroidVersionCode.txt
   
   ios:
     name: Build and Release IPA
