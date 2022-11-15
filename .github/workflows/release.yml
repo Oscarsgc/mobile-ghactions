@@ -34,6 +34,9 @@ jobs:
           workflow_conclusion: success
           if_no_artifact_found: ignore
 
+      - name: Directory
+        run: ls
+
       - name: Check file existence
         id: check_files
         uses: andstor/file-existence-action@v2
