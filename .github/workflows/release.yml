@@ -43,9 +43,12 @@ jobs:
         with:
           files: "./App/AndroidVersionCode.txt"
 
+      - name: Directory
+        run: cat AndroidVersionCode.txt
+
       - name: File exists
         if: steps.check_files.outputs.files_exists == 'true'
-        run: echo "android_version_code=$(cat ./App/AndroidVersionCode.txt | cut -d "-" -f2-)" >> $GITHUB_ENV
+        run: echo "android_version_code=$(cat AndroidVersionCode.txt | cut -d "-" -f2-)" >> $GITHUB_ENV
 
       - name: Setup Node
         uses: actions/setup-node@v3
