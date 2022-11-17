@@ -12,13 +12,13 @@ jobs:
   android:
     name: Build and Release APK
     runs-on: macos-latest
-    # defaults:
-    #   run:
-    #     working-directory: ${{ env.WORKING_DIR }}
+    defaults:
+      run:
+        working-directory: ${{ env.WORKING_DIR }}
 
     steps:
-      # - name: Checkout repository
-      #   uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
       # - name: Setup Android
       #   uses: maxim-lobanov/setup-android-tools@v1
@@ -29,14 +29,18 @@ jobs:
       - name: Export build tools
         # working-directory: /
         run: | 
-          $ANDROID_HOME/build-tools/30.0.3/zipalign
-          echo $ANDROID_HOME
-          source .bash_profile
+          pwd
+          ls
+          cd .. 
+          ls
+        # $ANDROID_HOME/build-tools/30.0.3/zipalign
+        # echo $ANDROID_HOME
+        # source .bash_profile
 
-      - name: List sdk tools
-        run: |
-          which zipalign
-          which apksigner
+      # - name: List sdk tools
+      #   run: |
+      #     which zipalign
+      #     which apksigner
 
       # - name: Download Version artifact
       #   uses: dawidd6/action-download-artifact@v2
