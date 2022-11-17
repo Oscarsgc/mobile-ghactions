@@ -28,11 +28,11 @@ jobs:
 
       - name: Export build tools
         run: | 
-          export JAVA_HOME=$(/usr/libexec/java_home -v11)
+          cd --
           export ANDROID_HOME=/Users/$USER/Library/Android/sdk
           export PATH=${PATH}:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools
           export PATH="$PATH:$HOME/Library/Android/sdk/build-tools/30.0.3"
-          
+
       - name: List sdk tools
         run: |
           which zipalign
