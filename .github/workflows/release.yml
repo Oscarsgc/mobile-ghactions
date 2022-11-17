@@ -12,9 +12,9 @@ jobs:
   android:
     name: Build and Release APK
     runs-on: macos-latest
-    defaults:
-      run:
-        working-directory: ${{ env.WORKING_DIR }}
+    # defaults:
+    #   run:
+    #     working-directory: ${{ env.WORKING_DIR }}
 
     steps:
       # - name: Checkout repository
