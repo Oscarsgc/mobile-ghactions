@@ -27,6 +27,7 @@ jobs:
       #     cache: true
 
       - name: Export build tools
+        working-directory: /
         run: | 
           cd --
           pwd
