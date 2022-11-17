@@ -29,8 +29,7 @@ jobs:
       - name: Export build tools
         # working-directory: /
         run: | 
-          # cd --          
-          /Users/runner/Library/Android/sdk/build-tools/30.0.3/zipalign
+          $ANDROID_HOME/build-tools/30.0.3/zipalign
           echo $ANDROID_HOME
           source .bash_profile
 
