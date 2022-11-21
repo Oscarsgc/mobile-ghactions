@@ -119,7 +119,7 @@ jobs:
       #     notify: true
 
       - name: Deploy using Fastlane
-        uses: maierj/fastlane-action@v2.3.0
+        uses: maierj/fastlane-action@v2.3.0          
         env:
           KEYSTORE_PATH: ./App/android/release.decrypted.jks
           ANDROID_JSON_KEY_FILE: ./App/android/service_account.json
@@ -128,6 +128,7 @@ jobs:
           KEYSTORE_KEY_PASSWORD: ${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
           KEYSTORE_STORE_PASSWORD: ${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
         with:
+          subdirectory: ./App/
           lane: android beta
 
       - name: Print deployed Release Version
