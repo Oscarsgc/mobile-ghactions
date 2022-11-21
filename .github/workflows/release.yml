@@ -1,7 +1,8 @@
 name: Test Release
 on:
-  push:
-    branches: [main]
+  workflow_dispatch:
+  # push:
+  #   branches: [main]
 
 env:
   JAVA_VERSION: "11"
@@ -12,117 +13,99 @@ jobs:
   android:
     name: Build and Release APK
     runs-on: macos-latest
-    # defaults:
-    #   run:
-    #     working-directory: ${{ env.WORKING_DIR }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # - name: Setup Android
-      #   uses: maxim-lobanov/setup-android-tools@v1
-      #   with:
-      #     packages: platforms;android-30
-      #     cache: true
+      - name: Download Version artifact
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          github_token: ${{secrets.GITHUB_TOKEN}}
+          workflow: release.yml
+          name: android-integration-released-version
+          path: ./App/
+          search_artifacts: true
+          workflow_conclusion: ""
+          if_no_artifact_found: ignore
 
-      - name: Export build tools
-        # working-directory: /
-        run: | 
-          pwd
-          ls
-          cd .. 
-          ls
-          $ANDROID_HOME/build-tools/30.0.3/zipalign
-        # echo $ANDROID_HOME
-        # source .bash_profile
+      - name: Check file existence
+        id: check_files
+        uses: andstor/file-existence-action@v2
+        with:
+          files: "./App/AndroidVersionCode.txt"
 
-      # - name: List sdk tools
-      #   run: |
-      #     which zipalign
-      #     which apksigner
+      - name: File exists
+        working-directory: ${{ env.WORKING_DIR }}
+        if: steps.check_files.outputs.files_exists == 'true'
+        run: echo "android_version_code=$(cat AndroidVersionCode.txt | cut -d "-" -f2-)" >> $GITHUB_ENV
 
-      # - name: Download Version artifact
-      #   uses: dawidd6/action-download-artifact@v2
-      #   with:
-      #     github_token: ${{secrets.GITHUB_TOKEN}}
-      #     workflow: release.yml
-      #     name: android-integration-released-version
-      #     path: ./App/
-      #     search_artifacts: true
-      #     workflow_conclusion: success
-      #     if_no_artifact_found: ignore
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
 
-      # - name: Directory
-      #   run: ls
+      - name: Setup Java SDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v3
+        with:
+          distribution: "zulu"
+          java-version: ${{ env.JAVA_VERSION }}
 
-      # - name: Check file existence
-      #   id: check_files
-      #   uses: andstor/file-existence-action@v2
-      #   with:
-      #     files: "./App/AndroidVersionCode.txt"
+      - name: Update Version Code value
+        id: updated_version
+        uses: actions/github-script@v6
+        with:
+          script: |
+            return parseInt("${{ env.android_version_code }}") + 1
 
-      # - name: Directory
-      #   run: cat AndroidVersionCode.txt
+      - name: Update gradle version for Android
+        uses: damienaicheh/update-android-version-gradle-action@v1.0.0
+        with:
+          build-gradle-path: "./app/android/app/build.gradle"
+          version-code: "${{steps.updated_version.outputs.result}}"
+          version-name: "1.0.${{steps.updated_version.outputs.result}}"
+          print-file: true
 
-      # - name: File exists
-      #   if: steps.check_files.outputs.files_exists == 'true'
-      #   run: echo "android_version_code=$(cat AndroidVersionCode.txt | cut -d "-" -f2-)" >> $GITHUB_ENV
+      - name: Install Ionic
+        run: npm install -g @ionic/cli
 
-      # - name: Setup Node
-      #   uses: actions/setup-node@v3
-      #   with:
-      #     node-version: 16.x
+      - name: Install app dependencies
+        working-directory: ${{ env.WORKING_DIR }}
+        run: npm install
 
-      # - name: Setup Java SDK ${{ env.JAVA_VERSION }}
-      #   uses: actions/setup-java@v3
-      #   with:
-      #     distribution: "zulu"
-      #     java-version: ${{ env.JAVA_VERSION }}
+      - name: Build App
+        working-directory: ${{ env.WORKING_DIR }}
+        run: npm run build
 
-      # - name: Update Version Code value
-      #   id: updated_version
-      #   uses: actions/github-script@v6
-      #   with:
-      #     script: |
-      #       return parseInt("${{ env.android_version_code }}") + 1
+      - name: Capacitor copy
+        working-directory: ${{ env.WORKING_DIR }}
+        run: npx cap copy && npx cap sync
 
-      # - name: Get result
-      #   run: echo "${{steps.updated_version.outputs.result}}"
+      - name: Build Android
+        working-directory: ${{ env.WORKING_DIR }}
+        run: ionic capacitor build android --minifycss --optimizejs --minifyjs --no-open --release
 
-      # - name: Update gradle version for Android
-      #   uses: damienaicheh/update-android-version-gradle-action@v1.0.0
-      #   with:
-      #     build-gradle-path: "app/android/app/build.gradle"
-      #     version-code: "${{steps.updated_version.outputs.result}}"
-      #     version-name: "2.0"
-      #     print-file: true
+      - name: Build app APK
+        working-directory: ${{ env.WORKING_DIR }}/android
+        run: gradle assemble
 
-      # - name: Install Ionic
-      #   run: npm install -g @ionic/cli
+      - name: Extract Android signing key from env
+        working-directory: ${{ env.WORKING_DIR }}
+        run: |
+          echo "${{ secrets.RELEASE_KEYSTORE }}" > ./android/release.jks.base64
+          base64 -d ./android/release.jks.base64 > ./android/release.decrypted.jks
+      
+      - name: Extract Android JSON
+        working-directory: ${{ env.WORKING_DIR }}
+        run: |
+          echo "${{ secrets.ANDROID_JSON_KEY_FILE }}" > ./android/service_account.base64
+          base64 -d ./android/service_account.base64> ./android/service_account.json
+      
+      - name: Align APK
+        run: $ANDROID_HOME/build-tools/30.0.3/zipalign -f -v 4 ./App/android/app/build/outputs/apk/release/app-release-unsigned.apk ./App/android/app/build/outputs/apk/release/app-release-aligned.apk
 
-      # - name: Install app dependencies
-      #   run: npm install
-
-      # - name: Build App
-      #   run: npm run build
-
-      # - name: Capacitor copy
-      #   run: npx cap copy && npx cap sync
-
-      # - name: Build Android
-      #   run: ionic capacitor build android --minifycss --optimizejs --minifyjs --no-open --release --prod
-
-      # - name: Build app APK
-      #   run: cd android && gradle assemble
-
-      # - name: Extract Android signing key from env
-      #   run: |
-      #     echo "${{ secrets.RELEASE_KEYSTORE }}" > ./android/release.jks.base64
-      #     base64 -d ./android/release.jks.base64 > ./android/release.decrypted.jks
-
-      # - name: Sign dev build
-      #   run: jarsigner -keystore ./android/release.decrypted.jks -storepass "${{ secrets.RELEASE_KEYSTORE_PASSWORD }}" -signedjar ./android/app/build/outputs/apk/release/app-release-signed.apk ./android/app/build/outputs/apk/release/app-release-unsigned.apk release
+      - name: Sign build        
+        run: $ANDROID_HOME/build-tools/30.0.3/apksigner sign --ks-pass pass:${{secrets.RELEASE_KEYSTORE_PASSWORD}} --key-pass pass:${{secrets.RELEASE_KEYSTORE_PASSWORD}} --ks ./App/android/release.decrypted.jks --ks-key-alias release --in ./App/android/app/build/outputs/apk/release/app-release-aligned.apk --out ./App/android/app/build/outputs/apk/release/app-release.apk
 
       # - name: Upload APK to TestApp.io
       #   uses: testappio/github-action@v5
@@ -135,15 +118,27 @@ jobs:
       #     include_git_commit_id: false
       #     notify: true
 
-      # - name: Print deployed Release Version
-      #   run: |
-      #     echo "Build-${{steps.updated_version.outputs.result}}" > ./AndroidVersionCode.txt
+      - name: Deploy using Fastlane
+        uses: maierj/fastlane-action@v2.3.0
+        env:
+          KEYSTORE_PATH: ./App/android/release.decrypted.jks
+          ANDROID_JSON_KEY_FILE: ./App/android/service_account.json
+          DEVELOPER_PACKAGE_NAME: com.aitbol.spotlight
+          KEYSTORE_KEY_ALIAS: release
+          KEYSTORE_KEY_PASSWORD: ${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
+          KEYSTORE_STORE_PASSWORD: ${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
+        with:
+          lane: android beta
 
-      # - name: Archive Android Code Version
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     name: android-integration-released-version
-      #     path: ./App/AndroidVersionCode.txt
+      - name: Print deployed Release Version
+        run: |
+          echo "Build-${{steps.updated_version.outputs.result}}" > ./app/AndroidVersionCode.txt
+
+      - name: Archive Android Code Version
+        uses: actions/upload-artifact@v3
+        with:
+          name: android-integration-released-version
+          path: ./app/AndroidVersionCode.txt
 
   # ios:
   #   name: Build and Release IPA
