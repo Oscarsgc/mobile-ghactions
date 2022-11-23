@@ -12,7 +12,6 @@ platform :android do
         gradle(
           task: "clean bundleRelease",
           project_dir: 'android/',
-          build_type: 'Release',
           print_command: false,
           properties: {
             "android.injected.signing.store.file" => "#{KEYSTORE_PATH}",
