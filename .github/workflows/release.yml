@@ -56,7 +56,7 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            return parseInt("${{ env.android_version_code }}") + 1
+            return parseInt("${{ env.android_version_code }}") + 5
 
       - name: Update gradle version for Android
         uses: damienaicheh/update-android-version-gradle-action@v1.0.0
