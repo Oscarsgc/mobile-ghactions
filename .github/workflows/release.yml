@@ -140,7 +140,7 @@ jobs:
           KEYSTORE_KEY_PASSWORD: ${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
           KEYSTORE_STORE_PASSWORD: ${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
         with:
-          subdirectory: ./App/
+          subdirectory: ./App/android
           lane: android playstore
 
       - name: Print deployed Release Version
