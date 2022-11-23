@@ -1,4 +1,4 @@
-package io.ionic.starter;
+package com.aitbol.spotlight;
 
 import com.getcapacitor.BridgeActivity;
 

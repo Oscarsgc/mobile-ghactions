@@ -107,7 +107,7 @@ public class AutomatedIosDevice extends AutomatedMobileDevice {
         // .add(new DesiredCapability(DesiredCapabilityOption.IOS_LOG, "true"));
         this.additionalCapabilities.add(new DesiredCapability(DesiredCapabilityOption.NEW_COMMAND_TIMEOUT, "300"));
         this.additionalCapabilities
-                .add(new DesiredCapability(DesiredCapabilityOption.BUNDLE_ID, "io.ionic.starter"));
+                .add(new DesiredCapability(DesiredCapabilityOption.BUNDLE_ID, "com.aitbol.spotlight"));
         this.additionalCapabilities
                 .add(new DesiredCapability(DesiredCapabilityOption.XCODE_ORG, "97C4K3R6W5"));
         this.additionalCapabilities
