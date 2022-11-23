@@ -117,12 +117,24 @@ jobs:
       #     git_release_notes: false
       #     include_git_commit_id: false
       #     notify: true
+      - name: Decode Keystore File
+        uses: timheuer/base64-to-file@v1
+        id: android_keystore
+        with:
+          fileName: android_keystore.keystore
+          encodedString: ${{ secrets.RELEASE_KEYSTORE }}
+      - name: Decode Google Play Confi File
+        uses: timheuer/base64-to-file@v1
+        id: service_account_json_file
+        with:
+          fileName: serviceAccount.json
+          encodedString: ${{ secrets.ANDROID_JSON_KEY_FILE }}
 
       - name: Deploy using Fastlane
         uses: maierj/fastlane-action@v2.3.0          
         env:
-          KEYSTORE_PATH: ./App/android/release.decrypted.jks
-          ANDROID_JSON_KEY_FILE: ./App/android/service_account.json
+          KEYSTORE_PATH: ${{ steps.android_keystore.outputs.filePath }}
+          ANDROID_JSON_KEY_FILE: ${{ steps.service_account_json_file.outputs.filePath }}
           DEVELOPER_PACKAGE_NAME: com.aitbol.spotlight
           KEYSTORE_KEY_ALIAS: release
           KEYSTORE_KEY_PASSWORD: ${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
