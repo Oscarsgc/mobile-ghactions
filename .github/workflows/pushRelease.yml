@@ -1,0 +1,71 @@
+name: Production Release
+on:
+  workflow_dispatch:
+    inputs:
+      release_version:
+        description: "Release Version (use tags/vxx.xx.xx format)"
+        required: true
+        default: "latest"
+env:
+  JAVA_VERSION: "11"
+  WORKING_DIR: "./App"
+  android_version_code: 0
+  latest_release: true
+  tag_version: ""
+
+jobs:
+  release:
+    name: Build and release to production
+    runs-on: macos-latest
+
+    steps:
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+
+      - name: Setup Java SDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v3
+        with:
+          distribution: "zulu"
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - name: Install Ionic
+        run: npm install -g @ionic/cli
+
+      - name: Download Version artifact
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          github_token: ${{secrets.GITHUB_TOKEN}}
+          workflow: pushRelease.yml
+          name: android-production-released-version
+          path: ./
+          search_artifacts: true
+          workflow_conclusion: ""
+          if_no_artifact_found: ignore
+
+      - name: Check file existence
+        id: check_files
+        uses: andstor/file-existence-action@v2
+        with:
+          files: "./AndroidVersionCode.txt"
+
+      - name: File exists
+        if: steps.check_files.outputs.files_exists == 'true'
+        run: echo "android_version_code=$(cat AndroidVersionCode.txt | cut -d "-" -f2-)" >> $GITHUB_ENV
+
+      - name: Set release details
+        if: github.event.inputs.release_version != 'latest'
+        run: |
+          echo "latest_release=false" >> $GITHUB_ENV
+          echo "tag_version=${{ github.event.inputs.release_version }}" >> $GITHUB_ENV
+
+      - name: Download release
+        uses: robinraju/release-downloader@v1.6
+        with:
+          latest: ${{ env.latest_release }}
+          tag: ${{ env.tag_version }}
+          zipBall: true
+      - name: List files
+        run: |
+          ls

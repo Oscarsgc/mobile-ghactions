@@ -1,4 +1,4 @@
-name: Test Release
+name: Integration Release
 on:
   workflow_dispatch:
   # push:
@@ -40,16 +40,16 @@ jobs:
         if: steps.check_files.outputs.files_exists == 'true'
         run: echo "android_version_code=$(cat AndroidVersionCode.txt | cut -d "-" -f2-)" >> $GITHUB_ENV
 
-      - name: Setup Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16.x
+      # - name: Setup Node
+      #   uses: actions/setup-node@v3
+      #   with:
+      #     node-version: 16.x
 
-      - name: Setup Java SDK ${{ env.JAVA_VERSION }}
-        uses: actions/setup-java@v3
-        with:
-          distribution: "zulu"
-          java-version: ${{ env.JAVA_VERSION }}
+      # - name: Setup Java SDK ${{ env.JAVA_VERSION }}
+      #   uses: actions/setup-java@v3
+      #   with:
+      #     distribution: "zulu"
+      #     java-version: ${{ env.JAVA_VERSION }}
 
       - name: Update Version Code value
         id: updated_version
@@ -58,54 +58,54 @@ jobs:
           script: |
             return parseInt("${{ env.android_version_code }}") + 1
 
-      - name: Update gradle version for Android
-        uses: damienaicheh/update-android-version-gradle-action@v1.0.0
-        with:
-          build-gradle-path: "./app/android/app/build.gradle"
-          version-code: "${{steps.updated_version.outputs.result}}"
-          version-name: "1.0.${{steps.updated_version.outputs.result}}"
-          print-file: true
+      # - name: Update gradle version for Android
+      #   uses: damienaicheh/update-android-version-gradle-action@v1.0.0
+      #   with:
+      #     build-gradle-path: "./app/android/app/build.gradle"
+      #     version-code: "${{steps.updated_version.outputs.result}}"
+      #     version-name: "1.0.${{steps.updated_version.outputs.result}}"
+      #     print-file: true
 
-      - name: Install Ionic
-        run: npm install -g @ionic/cli
+      # - name: Install Ionic
+      #   run: npm install -g @ionic/cli
 
-      - name: Install app dependencies
-        working-directory: ${{ env.WORKING_DIR }}
-        run: npm install
+      # - name: Install app dependencies
+      #   working-directory: ${{ env.WORKING_DIR }}
+      #   run: npm install
 
-      - name: Build App
-        working-directory: ${{ env.WORKING_DIR }}
-        run: npm run build
+      # - name: Build App
+      #   working-directory: ${{ env.WORKING_DIR }}
+      #   run: npm run build
 
-      - name: Capacitor copy
-        working-directory: ${{ env.WORKING_DIR }}
-        run: npx cap copy && npx cap sync
+      # - name: Capacitor copy
+      #   working-directory: ${{ env.WORKING_DIR }}
+      #   run: npx cap copy && npx cap sync
 
-      - name: Build Android
-        working-directory: ${{ env.WORKING_DIR }}
-        run: ionic capacitor build android --minifycss --optimizejs --minifyjs --no-open --release
+      # - name: Build Android
+      #   working-directory: ${{ env.WORKING_DIR }}
+      #   run: ionic capacitor build android --minifycss --optimizejs --minifyjs --no-open --release
 
-      - name: Build app APK
-        working-directory: ${{ env.WORKING_DIR }}/android
-        run: gradle assemble
+      # - name: Build app APK
+      #   working-directory: ${{ env.WORKING_DIR }}/android
+      #   run: gradle assemble
 
-      - name: Extract Android signing key from env
-        working-directory: ${{ env.WORKING_DIR }}
-        run: |
-          echo "${{ secrets.RELEASE_KEYSTORE }}" > ./android/release.jks.base64
-          base64 -d ./android/release.jks.base64 > ./android/release.decrypted.jks
-      
-      - name: Extract Android JSON
-        working-directory: ${{ env.WORKING_DIR }}
-        run: |
-          echo "${{ secrets.ANDROID_JSON_KEY_FILE }}" > ./android/service_account.base64
-          base64 -d ./android/service_account.base64> ./android/service_account.json
-      
-      - name: Align APK
-        run: $ANDROID_HOME/build-tools/30.0.3/zipalign -f -v 4 ./App/android/app/build/outputs/apk/release/app-release-unsigned.apk ./App/android/app/build/outputs/apk/release/app-release-aligned.apk
+      # - name: Extract Android signing key from env
+      #   working-directory: ${{ env.WORKING_DIR }}
+      #   run: |
+      #     echo "${{ secrets.RELEASE_KEYSTORE }}" > ./android/release.jks.base64
+      #     base64 -d ./android/release.jks.base64 > ./android/release.decrypted.jks
 
-      - name: Sign build        
-        run: $ANDROID_HOME/build-tools/30.0.3/apksigner sign --ks-pass pass:${{secrets.RELEASE_KEYSTORE_PASSWORD}} --key-pass pass:${{secrets.RELEASE_KEYSTORE_PASSWORD}} --ks ./App/android/release.decrypted.jks --ks-key-alias release --in ./App/android/app/build/outputs/apk/release/app-release-aligned.apk --out ./App/android/app/build/outputs/apk/release/app-release.apk
+      # - name: Extract Android JSON
+      #   working-directory: ${{ env.WORKING_DIR }}
+      #   run: |
+      #     echo "${{ secrets.ANDROID_JSON_KEY_FILE }}" > ./android/service_account.base64
+      #     base64 -d ./android/service_account.base64> ./android/service_account.json
+
+      # - name: Align APK
+      #   run: $ANDROID_HOME/build-tools/30.0.3/zipalign -f -v 4 ./App/android/app/build/outputs/apk/release/app-release-unsigned.apk ./App/android/app/build/outputs/apk/release/app-release-aligned.apk
+
+      # - name: Sign build
+      #   run: $ANDROID_HOME/build-tools/30.0.3/apksigner sign --ks-pass pass:${{secrets.RELEASE_KEYSTORE_PASSWORD}} --key-pass pass:${{secrets.RELEASE_KEYSTORE_PASSWORD}} --ks ./App/android/release.decrypted.jks --ks-key-alias release --in ./App/android/app/build/outputs/apk/release/app-release-aligned.apk --out ./App/android/app/build/outputs/apk/release/app-release.apk
 
       # - name: Upload APK to TestApp.io
       #   uses: testappio/github-action@v5
@@ -117,31 +117,32 @@ jobs:
       #     git_release_notes: false
       #     include_git_commit_id: false
       #     notify: true
-      - name: Decode Keystore File
-        uses: timheuer/base64-to-file@v1
-        id: android_keystore
-        with:
-          fileName: android_keystore.keystore
-          encodedString: ${{ secrets.RELEASE_KEYSTORE }}
-      - name: Decode Google Play Confi File
-        uses: timheuer/base64-to-file@v1
-        id: service_account_json_file
-        with:
-          fileName: serviceAccount.json
-          encodedString: ${{ secrets.ANDROID_JSON_KEY_FILE }}
 
-      - name: Deploy using Fastlane
-        uses: maierj/fastlane-action@v2.3.0          
-        env:
-          KEYSTORE_PATH: ${{ steps.android_keystore.outputs.filePath }}
-          ANDROID_JSON_KEY_FILE: ${{ steps.service_account_json_file.outputs.filePath }}
-          DEVELOPER_PACKAGE_NAME: com.aitbol.spotlight
-          KEYSTORE_KEY_ALIAS: release
-          KEYSTORE_KEY_PASSWORD: ${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
-          KEYSTORE_STORE_PASSWORD: ${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
-        with:
-          subdirectory: ./App/
-          lane: android playstore
+      # - name: Decode Keystore File
+      #   uses: timheuer/base64-to-file@v1
+      #   id: android_keystore
+      #   with:
+      #     fileName: android_keystore.keystore
+      #     encodedString: ${{ secrets.RELEASE_KEYSTORE }}
+      # - name: Decode Google Play Confi File
+      #   uses: timheuer/base64-to-file@v1
+      #   id: service_account_json_file
+      #   with:
+      #     fileName: serviceAccount.json
+      #     encodedString: ${{ secrets.ANDROID_JSON_KEY_FILE }}
+
+      # - name: Deploy using Fastlane
+      #   uses: maierj/fastlane-action@v2.3.0
+      #   env:
+      #     KEYSTORE_PATH: ${{ steps.android_keystore.outputs.filePath }}
+      #     ANDROID_JSON_KEY_FILE: ${{ steps.service_account_json_file.outputs.filePath }}
+      #     DEVELOPER_PACKAGE_NAME: com.aitbol.spotlight
+      #     KEYSTORE_KEY_ALIAS: release
+      #     KEYSTORE_KEY_PASSWORD: ${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
+      #     KEYSTORE_STORE_PASSWORD: ${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
+      #   with:
+      #     subdirectory: ./App/
+      #     lane: android playstore
 
       - name: Print deployed Release Version
         run: |
@@ -152,6 +153,19 @@ jobs:
         with:
           name: android-integration-released-version
           path: ./App/AndroidVersionCode.txt
+
+      ####################################################################
+      - name: Bump version and push tag
+        id: tag_version
+        uses: mathieudutour/github-tag-action@v6.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create a GitHub release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ steps.tag_version.outputs.new_tag }}
+          name: Release ${{ steps.tag_version.outputs.new_tag }}
 
   # ios:
   #   name: Build and Release IPA
