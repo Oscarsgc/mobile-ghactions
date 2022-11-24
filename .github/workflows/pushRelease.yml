@@ -159,5 +159,5 @@ jobs:
       - name: Archive Android Code Version
         uses: actions/upload-artifact@v3
         with:
-          name: android-integration-released-version
+          name: android-production-released-version
           path: ./AndroidVersionCode.txt
