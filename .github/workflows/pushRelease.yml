@@ -70,7 +70,7 @@ jobs:
       - name: Unzip Release Folder
         run: unzip -qq ${{ github.event.repository.name }}*.zip
       
-      - name: Get into Directory
+      - name: Rename Directory
         run: |
-          cd ${{github.repository_owner}}-${{ github.event.repository.name }}*
+          mv ${{github.repository_owner}}-${{ github.event.repository.name }}* ${{ github.event.repository.name }}
           ls
