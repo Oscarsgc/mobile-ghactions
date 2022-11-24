@@ -8,7 +8,7 @@ on:
         default: "latest"
 env:
   JAVA_VERSION: "11"
-  WORKING_DIR: "./App"
+  WORKING_DIR: "${{ github.event.repository.name }}/App"
   android_version_code: 0
   latest_release: true
   tag_version: ""
@@ -71,6 +71,93 @@ jobs:
         run: unzip -qq ${{ github.event.repository.name }}*.zip
       
       - name: Rename Directory
-        run: |
-          mv ${{github.repository_owner}}-${{ github.event.repository.name }}* ${{ github.event.repository.name }}
-          ls
+        run: mv ${{github.repository_owner}}-${{ github.event.repository.name }}* ${{ github.event.repository.name }}
+
+      - name: Update Version Code value
+        id: updated_version
+        uses: actions/github-script@v6
+        with:
+          script: |
+            return parseInt("${{ env.android_version_code }}") + 1
+      
+      - name: Update gradle version for Android
+        uses: damienaicheh/update-android-version-gradle-action@v1.0.0
+        with:
+          build-gradle-path: "${{ github.event.repository.name }}/App/android/app/build.gradle"
+          version-code: "${{steps.updated_version.outputs.result}}"
+          version-name: "1.0.${{steps.updated_version.outputs.result}}"
+          print-file: true
+      
+      # - name: Install app dependencies
+      #   working-directory: ${{ env.WORKING_DIR }}
+      #   run: npm install
+
+      # - name: Build App
+      #   working-directory: ${{ env.WORKING_DIR }}
+      #   run: npm run build
+      
+      # - name: Capacitor copy
+      #   working-directory: ${{ env.WORKING_DIR }}
+      #   run: npx cap copy && npx cap sync
+
+      # - name: Build Android
+      #   working-directory: ${{ env.WORKING_DIR }}
+      #   run: ionic capacitor build android --minifycss --optimizejs --minifyjs --no-open --prod
+
+      # - name: Build app APK
+      #   working-directory: ${{ env.WORKING_DIR }}/android
+      #   run: gradle assemble
+
+      # - name: Extract Android signing key from env
+      #   working-directory: ${{ env.WORKING_DIR }}
+      #   run: |
+      #     echo "${{ secrets.RELEASE_KEYSTORE }}" > ./android/release.jks.base64
+      #     base64 -d ./android/release.jks.base64 > ./android/release.decrypted.jks
+
+      # - name: Extract Android JSON
+      #   working-directory: ${{ env.WORKING_DIR }}
+      #   run: |
+      #     echo "${{ secrets.ANDROID_JSON_KEY_FILE }}" > ./android/service_account.base64
+      #     base64 -d ./android/service_account.base64> ./android/service_account.json
+
+      # - name: Align APK
+      #   run: $ANDROID_HOME/build-tools/30.0.3/zipalign -f -v 4 ./App/android/app/build/outputs/apk/release/app-release-unsigned.apk ./App/android/app/build/outputs/apk/release/app-release-aligned.apk
+
+      # - name: Sign build
+      #   run: $ANDROID_HOME/build-tools/30.0.3/apksigner sign --ks-pass pass:${{secrets.RELEASE_KEYSTORE_PASSWORD}} --key-pass pass:${{secrets.RELEASE_KEYSTORE_PASSWORD}} --ks ./App/android/release.decrypted.jks --ks-key-alias release --in ./App/android/app/build/outputs/apk/release/app-release-aligned.apk --out ./App/android/app/build/outputs/apk/release/app-release.apk
+
+      # - name: Decode Keystore File
+      #   uses: timheuer/base64-to-file@v1
+      #   id: android_keystore
+      #   with:
+      #     fileName: android_keystore.keystore
+      #     encodedString: ${{ secrets.RELEASE_KEYSTORE }}
+
+      # - name: Decode Google Play Confi File
+      #   uses: timheuer/base64-to-file@v1
+      #   id: service_account_json_file
+      #   with:
+      #     fileName: serviceAccount.json
+      #     encodedString: ${{ secrets.ANDROID_JSON_KEY_FILE }}
+
+      # - name: Deploy using Fastlane
+      #   uses: maierj/fastlane-action@v2.3.0
+      #   env:
+      #     KEYSTORE_PATH: ${{ steps.android_keystore.outputs.filePath }}
+      #     ANDROID_JSON_KEY_FILE: ${{ steps.service_account_json_file.outputs.filePath }}
+      #     DEVELOPER_PACKAGE_NAME: com.aitbol.spotlight
+      #     KEYSTORE_KEY_ALIAS: release
+      #     KEYSTORE_KEY_PASSWORD: ${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
+      #     KEYSTORE_STORE_PASSWORD: ${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
+      #   with:
+      #     subdirectory: ${{ env.WORKING_DIR }}
+      #     lane: android playstore
+
+      - name: Print deployed Release Version
+        run: echo "Build-${{steps.updated_version.outputs.result}}" > ./AndroidVersionCode.txt
+
+      - name: Archive Android Code Version
+        uses: actions/upload-artifact@v3
+        with:
+          name: android-integration-released-version
+          path: ./AndroidVersionCode.txt
