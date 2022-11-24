@@ -66,6 +66,10 @@ jobs:
           latest: ${{ env.latest_release }}
           tag: ${{ env.tag_version }}
           zipBall: true
+      
+      - name: Unzip Release Folder
+        run: unzip -qq ${{ github.event.repository.name }}*.zip
+      
       - name: List files
         run: |
           ls
