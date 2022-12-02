@@ -237,16 +237,16 @@ jobs:
       - name: Build iOS
         run: ionic capacitor build ios --minifycss --optimizejs --minifyjs --no-open --release --prod
 
-      # - name: Build with xCode
-      #   run: xcodebuild -workspace ios/App/App.xcworkspace -scheme App clean archive -configuration Release -sdk iphoneos DEVELOPMENT_TEAM=${{secrets.APPLE_DEV_TEAM}} -archivePath ios/App/App.xcarchive -authenticationKeyIssuerID ${{secrets.AUTH_KEY_ISSUER_ID}} -authenticationKeyID ${{secrets.KEY_ID}} -authenticationKeyPath ${{ env.KEY_PATH }} -allowProvisioningUpdates
+      - name: Build with xCode
+        run: xcodebuild -workspace ios/App/App.xcworkspace -scheme App clean archive -configuration Release -sdk iphoneos DEVELOPMENT_TEAM=${{secrets.APPLE_DEV_TEAM}} -archivePath ios/App/App.xcarchive -authenticationKeyIssuerID ${{secrets.AUTH_KEY_ISSUER_ID}} -authenticationKeyID ${{secrets.KEY_ID}} -authenticationKeyPath ${{ env.KEY_PATH }} -allowProvisioningUpdates
 
-      # - name: Generate IPA file
-      #   run: |
-      #     cd ios/App/App.xcarchive/Products/Applications
-      #     mkdir Payload
-      #     cp -R App.app Payload
-      #     zip -qyr App.ipa ./Payload
-      #     rm -rf Payload
+      - name: Generate IPA file
+        run: |
+          cd ios/App/App.xcarchive/Products/Applications
+          mkdir Payload
+          cp -R App.app Payload
+          zip -qyr App.ipa ./Payload
+          rm -rf Payload
 
       - name: Install Ruby
         uses: ruby/setup-ruby@v1
