@@ -1,7 +1,5 @@
 default_platform(:android)
 default_platform(:ios)
-xcodes(version: "14.1")
-
 
 KEYSTORE_PATH = ENV["KEYSTORE_PATH"]
 KEYSTORE_KEY_ALIAS = ENV["KEYSTORE_KEY_ALIAS"]
@@ -92,6 +90,7 @@ platform :ios do
       configuration: "Release",
       workspace: "./ios/App/App.xcworkspace",
       scheme: "App",
+      xcargs: "-allowProvisioningUpdates",
       export_method: "app-store",
       export_options: {
         provisioningProfiles: { 
