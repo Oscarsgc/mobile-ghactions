@@ -106,7 +106,7 @@ platform :ios do
       skip_submission: true,
       distribute_external: false,
       notify_external_testers: false,
-      ipa: "./App.ipa"
+      ipa: "./ios/App/App.xcarchive/Products/Applications/App.ipa"
     )
 
     delete_temp_keychain(keychain_name)
