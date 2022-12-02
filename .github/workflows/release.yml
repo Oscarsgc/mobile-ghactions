@@ -256,22 +256,22 @@ jobs:
       - name: Release to store
         uses: maierj/fastlane-action@v2.3.0
         env:
-          DEVELOPER_APP_IDENTIFIER: ${{ secrets.DEVELOPER_APP_IDENTIFIER }}
-          DEVELOPER_APP_ID: ${{ secrets.DEVELOPER_APP_ID }}
-          PROVISIONING_PROFILE_SPECIFIER: ${{ secrets.DEVELOPER_APP_IDENTIFIER }}
-          TEMP_KEYCHAIN_USER: ${{ secrets.TEMP_KEYCHAIN_USER }}
-          TEMP_KEYCHAIN_PASSWORD: ${{ secrets.TEMP_KEYCHAIN_PASSWORD }}
-          APPLE_ISSUER_ID: ${{ secrets.APPLE_ISSUER_ID }}
-          APPLE_KEY_ID: ${{ secrets.APPLE_KEY_ID }}
-          APPLE_KEY_CONTENT: ${{ secrets.APPLE_KEY_CONTENT }}
-          CERTIFICATE_STORE_URL: ${{ secrets.CERTIFICATE_STORE_URL }}
-          GIT_USERNAME: ${{ secrets.GIT_USERNAME }}
-          GIT_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-          FASTLANE_APPLE_ID: ${{ secrets.FASTLANE_APPLE_ID }}
-          MATCH_USERNAME: ${{ secrets.FASTLANE_APPLE_ID }}
-          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
-          APP_STORE_CONNECT_TEAM_ID: ${{ secrets.APP_STORE_CONNECT_TEAM_ID }}
-          DEVELOPER_PORTAL_TEAM_ID: ${{ secrets.DEVELOPER_PORTAL_TEAM_ID }}
+          DEVELOPER_APP_IDENTIFIER: ${{ secrets.DEVELOPER_APP_IDENTIFIER }} #App bundle ID
+          DEVELOPER_APP_ID: ${{ secrets.DEVELOPER_APP_ID }} #Get From AppConnect
+          PROVISIONING_PROFILE_SPECIFIER: match AppStore ${{ secrets.DEVELOPER_APP_IDENTIFIER }} #App Bundle ID
+          TEMP_KEYCHAIN_USER: ${{ secrets.TEMP_KEYCHAIN_USER }} #Anything
+          TEMP_KEYCHAIN_PASSWORD: ${{ secrets.TEMP_KEYCHAIN_PASSWORD }} #Anything
+          APPLE_ISSUER_ID: ${{ secrets.APPLE_ISSUER_ID }} #API Key Issuer ID
+          APPLE_KEY_ID: ${{ secrets.APPLE_KEY_ID }} #API Key ID
+          APPLE_KEY_CONTENT: ${{ secrets.APPLE_KEY_CONTENT }} #P8 Certificate as text
+          CERTIFICATE_STORE_URL: ${{ secrets.CERTIFICATE_STORE_URL }} #Repository URL
+          GIT_USERNAME: ${{ secrets.GIT_USERNAME }} #GIT USERNAME
+          GIT_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }} #GIT TOKEN
+          FASTLANE_APPLE_ID: ${{ secrets.FASTLANE_APPLE_ID }} #apple id
+          MATCH_USERNAME: ${{ secrets.FASTLANE_APPLE_ID }} #apple id
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }} #any password
+          APP_STORE_CONNECT_TEAM_ID: ${{ secrets.APP_STORE_CONNECT_TEAM_ID }} #team ID
+          DEVELOPER_PORTAL_TEAM_ID: ${{ secrets.DEVELOPER_PORTAL_TEAM_ID }} #team ID
         with:
           subdirectory: ${{ env.WORKING_DIR }}
           lane: release_appstore
