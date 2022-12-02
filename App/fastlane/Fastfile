@@ -17,6 +17,7 @@ APPLE_ISSUER_ID = ENV["APPLE_ISSUER_ID"]
 APPLE_KEY_ID = ENV["APPLE_KEY_ID"]
 APPLE_KEY_CONTENT = ENV["APPLE_KEY_CONTENT"]
 GIT_USERNAME = ENV["GIT_USERNAME"]
+GIT_CREDENTIALS = ENV["GIT_CREDENTIALS"]
 GIT_TOKEN = ENV["GIT_TOKEN"]
 
 
@@ -78,7 +79,7 @@ platform :ios do
     
     match(
       type: 'appstore',
-      git_basic_authorization: Base64.strict_encode64("#{GIT_USERNAME}:#{GIT_TOKEN}"),
+      git_basic_authorization: "#{GIT_CREDENTIALS}"),
       readonly: true,
       keychain_name: keychain_name,
       keychain_password: keychain_password,

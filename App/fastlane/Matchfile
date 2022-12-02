@@ -13,14 +13,15 @@
 # The docs are available on https://docs.fastlane.tools/actions/match
 
 
+# GIT_USERNAME = ENV["GIT_USERNAME"]
+# GIT_TOKEN = ENV["GIT_TOKEN"]
+# git_url("https://github.com/Oscarsgc/certificates.git")
 CERTIFICATE_STORE_URL = ENV["CERTIFICATE_STORE_URL"]
-GIT_USERNAME = ENV["GIT_USERNAME"]
-GIT_TOKEN = ENV["GIT_TOKEN"]
+GIT_CREDENTIALS = ENV["GIT_CREDENTIALS"]
 FASTLANE_APPLE_ID = ENV["FASTLANE_APPLE_ID"]
 
-# git_url(CERTIFICATE_STORE_URL)
-git_url("https://github.com/Oscarsgc/certificates.git")
+git_url(CERTIFICATE_STORE_URL)
 storage_mode("git")
 type("appstore")
-git_basic_authorization(Base64.strict_encode64("#{GIT_USERNAME}:#{GIT_TOKEN}"))
+git_basic_authorization(GIT_CREDENTIALS)
 username(FASTLANE_APPLE_ID)

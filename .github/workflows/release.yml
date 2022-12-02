@@ -267,6 +267,7 @@ jobs:
           CERTIFICATE_STORE_URL: ${{ secrets.CERTIFICATE_STORE_URL }} #Repository URL
           GIT_USERNAME: ${{ secrets.GIT_USERNAME }} #GIT USERNAME
           GIT_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }} #GIT TOKEN
+          GIT_CREDENTIALS: ${{ secrets.GIT_CREDENTIALS }} #GIT TOKEN
           FASTLANE_APPLE_ID: ${{ secrets.FASTLANE_APPLE_ID }} #apple id
           MATCH_USERNAME: ${{ secrets.FASTLANE_APPLE_ID }} #apple id
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }} #any password
