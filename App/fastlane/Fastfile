@@ -1,5 +1,7 @@
 default_platform(:android)
 default_platform(:ios)
+xcversion(version: "14.1")
+
 
 KEYSTORE_PATH = ENV["KEYSTORE_PATH"]
 KEYSTORE_KEY_ALIAS = ENV["KEYSTORE_KEY_ALIAS"]
